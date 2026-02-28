@@ -7,7 +7,7 @@ class Base(DeclarativeBase):
 
 class Book(Base):
 
-    __table_name__ = "books"
+    __tablename__ = "books" 
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
