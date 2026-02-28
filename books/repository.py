@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from .models import Book
 from datetime import datetime
-from .exceptions import ValidationError, DataBaseError
+from .exceptions import ValidationError, DataBaseError, BookNotFoundError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select, or_
 from typing import Sequence
@@ -54,3 +54,20 @@ class BookManager:
             return result.scalars().all()
         except SQLAlchemyError as e:
             raise DataBaseError(f"An error occurred while searching for books: {str(e)}")
+
+
+    async def delete_book(self, book_id: int) -> None:
+        """Deletes a book from the database."""
+        try:
+            book = await self._session.get(Book, book_id)
+            if not book:
+                raise BookNotFoundError(f"Book with id {book_id} does not exist.")
+
+            async with self._session.begin_nested():
+                await self._session.delete(book)
+            await self._session.commit()
+        except BookNotFoundError:
+            raise
+        except SQLAlchemyError as e:
+            await self._session.rollback()
+            raise DataBaseError(f"An error occurred while deleting the book: {str(e)}")

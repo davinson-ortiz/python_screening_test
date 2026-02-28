@@ -9,3 +9,7 @@ class ValidationError(BookManagerError):
 class DataBaseError(BookManagerError):
     """Exception raised for database errors."""
     pass
+
+class BookNotFoundError(BookManagerError):
+    """Exception raised when a book is not found."""
+    pass
